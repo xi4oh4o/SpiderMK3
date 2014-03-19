@@ -4,19 +4,24 @@
 #   Video play address fetching   #
 ###################################
 
-require 'mysql2'
-require 'nokogiri'
-require 'open-uri'
-
 class Spider
+  require 'mysql2'
+  require 'nokogiri'
+  require 'open-uri'
 
   def Spider.runSpider(source)
+    # 建立数据库链接
     client = Mysql2::Client.new(:host => '192.168.199.210', :username => 'root', :password => '912913', :database => 'newmv')
-
+    # 加载所有剧集
+    episode = client.query(" SELECT * FROM T_SCollectsMK2 WHERE C_Source = \"#{source}\" LIMIT 10", :cast => false, :cache_row => false)
+    # 判断方法参数执行不同规则
     case source
     when "tudou"
-      client.query(" SELECT * FROM T_SCollectsMK2 WHERE C_Source = \"#{source}\" LIMIT 10 ").each do |row|
+      # 循环结果集
+      episode.each do |row|
+        # 循环解析播放参数
         play = Spider.tudouParse(row['C_Url'])
+        # 结果更新至数据库
         client.query(" UPDATE T_SCollectsMK2 SET C_Play = \"#{play}\" WHERE C_ID = \"#{row['C_ID']}\" ")
       end
     when "youku"
