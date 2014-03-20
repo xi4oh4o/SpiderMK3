@@ -1,7 +1,0 @@
-Spider MK3
-  Base Ruby
-
-Using Gem
-  nokogiri
-  open-uri
-  mysql2
