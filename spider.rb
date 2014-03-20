@@ -13,21 +13,24 @@ class Spider
     # 建立数据库链接
     client = Mysql2::Client.new(:host => '192.168.199.210', :username => 'root', :password => '912913', :database => 'newmv')
     # 加载播放源为source参数的剧集
-    episode = client.query(" SELECT * FROM T_SCollectsMK2 WHERE C_Source = \"#{source}\" LIMIT 10", :cast => false, :cache_row => false)
+    episode = client.query(" SELECT * FROM mv_episode WHERE e_source = \"#{source}\" AND vid = '7621' LIMIT 10", :cast => false, :cache_row => false)
     # 判断方法参数执行不同规则
     case source
     when "tudou"
       # 循环结果集
       episode.each do |row|
         # 循环解析播放参数
-        play = Spider.tudouParse(row['C_Url'])
+        play = Spider.tudouParse(row['e_url'])
         # 结果更新至数据库
-        client.query(" UPDATE T_SCollectsMK2 SET C_Play = \"#{play}\" WHERE C_ID = \"#{row['C_ID']}\" ")
+        client.query(" UPDATE mv_episode SET e_play = \"#{play}\" WHERE eid = \"#{row['eid']}\" ")
+        # 打印完成剧集
+        puts "#{row['e_source']} #{row['e_epname']} Ep #{row['e_number']} Done."
       end
     when "youku"
       episode.each do |row|
-        play = Spider.youkuParse(row['C_Url'])
-        client.query(" UPDATE T_SCollectsMK2 SET C_Play = \"#{play}\" WHERE C_ID = \"#{row['C_ID']}\" ")
+        play = Spider.youkuParse(row['e_url'])
+        client.query(" UPDATE mv_episode SET e_play = \"#{play}\" WHERE eid = \"#{row['eid']}\" ")
+        puts "#{row['e_source']} #{row['e_epname']} Ep #{row['e_number']} Done."
       end
     end
   end
@@ -56,4 +59,5 @@ class Spider
 
 end
 
+Spider.runSpider('tudou')
 Spider.runSpider('youku')
