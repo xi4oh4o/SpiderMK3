@@ -12,7 +12,7 @@ class Spider
   def Spider.runSpider(source)
     # 建立数据库链接
     client = Mysql2::Client.new(:host => '192.168.199.210', :username => 'root', :password => '912913', :database => 'newmv')
-    # 加载所有剧集
+    # 加载播放源为source参数的剧集
     episode = client.query(" SELECT * FROM T_SCollectsMK2 WHERE C_Source = \"#{source}\" LIMIT 10", :cast => false, :cache_row => false)
     # 判断方法参数执行不同规则
     case source
@@ -25,7 +25,10 @@ class Spider
         client.query(" UPDATE T_SCollectsMK2 SET C_Play = \"#{play}\" WHERE C_ID = \"#{row['C_ID']}\" ")
       end
     when "youku"
-      puts "未完成功能"
+      episode.each do |row|
+        play = Spider.youkuParse(row['C_Url'])
+        client.query(" UPDATE T_SCollectsMK2 SET C_Play = \"#{play}\" WHERE C_ID = \"#{row['C_ID']}\" ")
+      end
     end
   end
 
@@ -41,7 +44,16 @@ class Spider
     result = lcode.to_s + ',' + iid.to_s
     return result
   end
+
+  def Spider.youkuParse(url)
+    # Parse HTML
+    doc = Nokogiri::HTML(open(url))
+    page = doc.css('input#link3')[0]['value'].to_s
+    # Regular match vid
+    vid = /\w+(?=\/v.swf)/.match(page)
+    return vid
+  end
+
 end
 
-# fetching tudou play
-Spider.runSpider('tudou')
+Spider.runSpider('youku')
