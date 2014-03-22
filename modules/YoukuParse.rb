@@ -1,5 +1,5 @@
 module YoukuParse
-  def Spider.youkuParse(url)
+  def youkuParse(url)
     # Parse HTML
     doc = Nokogiri::HTML(open(url))
     # Parse #link3 content
