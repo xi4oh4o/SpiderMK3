@@ -13,13 +13,20 @@ class Spider
   require './modules/YoukuParse'
   require './modules/PPSParse'
   require './modules/SohuParse'
+  require './modules/QQParse'
+  require './modules/LetvParse'
+  require './modules/FsParse'
 
   extend Db
   extend TudouParse
   extend YoukuParse
   extend PPSParse
   extend SohuParse
+  extend QQParse
+  extend LetvParse
+  extend FsParse
 
+  # Optimize 可改为循环source列表
   def Spider.runSpider(source)
     case source
     when "tudou"
@@ -42,10 +49,28 @@ class Spider
         play = Spider.sohuParse(row['e_url'])
         Spider.setEpisode(play, row)
       end
+    when "qq"
+      Spider.getEpisode(source).each do |row|
+        play = Spider.qqParse(row['e_url'])
+        Spider.setEpisode(play, row)
+      end
+    when "letv"
+      Spider.getEpisode(source).each do |row|
+        play = Spider.letvParse(row['e_url'])
+        Spider.setEpisode(play, row)
+      end
+    when "56"
+      Spider.getEpisode(source).each do |row|
+        play = Spider.fsParse(row['e_url'])
+        Spider.setEpisode(play, row)
+      end
     end
   end
 end
-Spider.runSpider('sohu')
+# Spider.runSpider('56')
+# Spider.runSpider('letv')
+# Spider.runSpider('qq')
+# Spider.runSpider('sohu')
 # Spider.runSpider('pps')
 # Spider.runSpider('tudou')
 # Spider.runSpider('youku')
