@@ -12,11 +12,13 @@ class Spider
   require './modules/TudouParse'
   require './modules/YoukuParse'
   require './modules/PPSParse'
+  require './modules/SohuParse'
 
   extend Db
   extend TudouParse
   extend YoukuParse
   extend PPSParse
+  extend SohuParse
 
   def Spider.runSpider(source)
     case source
@@ -35,10 +37,15 @@ class Spider
         play = Spider.ppsParse(row['e_url'])
         Spider.setEpisode(play, row)
       end
+    when "sohu"
+      Spider.getEpisode(source).each do |row|
+        play = Spider.sohuParse(row['e_url'])
+        Spider.setEpisode(play, row)
+      end
     end
   end
 end
-
+Spider.runSpider('sohu')
 # Spider.runSpider('pps')
 # Spider.runSpider('tudou')
 # Spider.runSpider('youku')
