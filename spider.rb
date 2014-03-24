@@ -16,6 +16,7 @@ class Spider
   require './modules/QQParse'
   require './modules/LetvParse'
   require './modules/FsParse'
+  require './modules/QiyiParse'
 
   extend Db
   extend TudouParse
@@ -25,6 +26,7 @@ class Spider
   extend QQParse
   extend LetvParse
   extend FsParse
+  extend QiyiParse
 
   # Optimize 可改为循环source列表
   def Spider.runSpider(source)
@@ -64,9 +66,20 @@ class Spider
         play = Spider.fsParse(row['e_url'])
         Spider.setEpisode(play, row)
       end
+    when "qiyi"
+      Spider.getEpisode(source).each do |row|
+        play = Spider.qiyiParse(row['e_url'])
+        Spider.setEpisode(play, row)
+      end
+    when "iqiyi"
+      Spider.getEpisode(source).each do |row|
+        play = Spider.qiyiParse(row['e_url'])
+        Spider.setEpisode(play, row)
+      end
     end
   end
 end
+Spider.runSpider('qiyi')
 # Spider.runSpider('56')
 # Spider.runSpider('letv')
 # Spider.runSpider('qq')
